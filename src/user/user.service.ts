@@ -1,4 +1,4 @@
-import { ConflictException, Inject, Injectable } from '@nestjs/common';
+import { ConflictException, HttpException, Inject, Injectable } from '@nestjs/common';
 import { User } from './user.model';
 
 @Injectable()
@@ -8,17 +8,9 @@ export class UserService {
         private userModel: typeof User,
     ) {}
 
-    async addUser(email: string): Promise<void> {
-        let user = await this.getUser(email);
-        
-        if(user !== null){
-            throw new ConflictException('Registering cancelled. The user already exists.');
-        }
-        
+    async addUser(email: string): Promise<void> {       
         this.userModel.create({
             email: email,
-        }).catch((e) => {
-            console.log('!!!!!!!!!!!!!!!!!FTO!!!!!!!!!!!!!!!!!',e);
         });
     }
 

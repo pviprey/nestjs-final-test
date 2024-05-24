@@ -1,30 +1,31 @@
+import { ValidationError } from 'sequelize';
 import { User } from './user.model';
 import { UserService } from './user.service';
-import { Controller, Post, Param, BadRequestException } from '@nestjs/common';
+import { Controller, Post, BadRequestException, Body, ConflictException, NotFoundException } from '@nestjs/common';
 
 @Controller()
 export class UserController {
     constructor(private readonly UserService: UserService) {}
 
     @Post()
-    async addUser(@Param('email') email: string): Promise<void> {
-
-        console.log('!!!!!!!!!!!!!!FTO!!!!!!!!!!!!!!', );
-
-        if(email === undefined){
-            throw new BadRequestException('Registration cancelled. The email is not specified.');
+    async addUser(@Body('email') email: string): Promise<void> {
+        let user = await this.getUser(email);
+        
+        if(user !== null){
+            throw new ConflictException('Registering cancelled. The user already exists.');
         }
 
-        this.UserService.addUser(email);
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        if(!emailRegex.test(email)){
+            throw new BadRequestException('Registering cancelled. The email is invalid.');
+        }
+
+        await this.UserService.addUser(email);
     }
 
     @Post(':email')
-    async getUser(@Param('email') email: string): Promise<User> {
-        try{
-            return this.UserService.getUser(email);
-        } catch (e) {
-            console.log(e);
-        }
+    async getUser(@Body('email') email: string): Promise<User> {
+        return await this.UserService.getUser(email);
     }
 
     async resetData(): Promise<void> {
