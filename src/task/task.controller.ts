@@ -23,7 +23,10 @@ export class TaskController {
 
     @Get('/user/:userId')
     async getUserTasks(@Param('userId') userId: number): Promise<Task[]> {
-        console.log('!!!!!!!!!!!!!!!!!!!!FTO!!!!!!!!!!!!!!!!', userId);
+        if(userId === undefined || userId < 0 || typeof userId !== 'number'){
+            throw new BadRequestException('Adding task cancelled. The userId is invalid.');
+        }
+        
         return await this.TaskService.getUserTasks(userId);
     }
 
