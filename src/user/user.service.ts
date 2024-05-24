@@ -1,18 +1,38 @@
-import { Injectable, NotImplementedException } from '@nestjs/common';
+import { ConflictException, Inject, Injectable } from '@nestjs/common';
+import { User } from './user.model';
 
 @Injectable()
 export class UserService {
-    constructor() {}
+    constructor(
+        @Inject('USER_REPOSITORY')
+        private userModel: typeof User,
+    ) {}
 
-    addUser(email: string): Promise<void> {
-        throw new NotImplementedException();
+    async addUser(email: string): Promise<void> {
+        let user = await this.getUser(email);
+        
+        if(user !== null){
+            throw new ConflictException('Registering cancelled. The user already exists.');
+        }
+        
+        this.userModel.create({
+            email: email,
+        }).catch((e) => {
+            console.log('!!!!!!!!!!!!!!!!!FTO!!!!!!!!!!!!!!!!!',e);
+        });
     }
 
-    getUser(email: string): Promise<unknown> {
-        throw new NotImplementedException();
+    async getUser(email: string): Promise<User> {
+        return this.userModel.findOne({
+            where: {
+                email: email,
+            },
+        });
     }
 
-    resetData(): Promise<void> {
-        throw new NotImplementedException();
+    async resetData(): Promise<void> {
+        await this.userModel.destroy({
+            where: {},
+        });
     }
 }

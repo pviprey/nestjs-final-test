@@ -1,22 +1,52 @@
-import { Injectable, NotImplementedException } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
+import { Task } from './task.model';
 
 @Injectable()
 export class TaskService {
-    constructor() {}
+    constructor(
+        @Inject('TASK_REPOSITORY')
+        private taskModel: typeof Task,
+    ) {}
 
-    addTask(name: string, userId: string, priority: number): Promise<void> {
-        throw new NotImplementedException();
+    async addTask(name: string, userId: string, priority: number): Promise<void> {
+        try{
+            await this.taskModel.create({
+                name: name,
+                userId: userId,
+                priority: priority,
+            });
+        }catch(e){
+            console.log("FTO!!Error in adding task");
+        }
     }
 
-    getTaskByName(name: string): Promise<unknown> {
-        throw new NotImplementedException();
+    async getTaskByName(name: string): Promise<Task> {
+        try{
+            return await this.taskModel.findOne({
+                where: {
+                    name: name,
+                },
+            });
+        }catch(e){
+            console.log("FTO!!Error in getting task");
+        }
     }
 
-    getUserTasks(userId: string): Promise<unknown[]> {
-        throw new NotImplementedException();
+    async getUserTasks(userId: string): Promise<Task[]> {
+        try{
+            return await this.taskModel.findAll({
+                where: {
+                    userId: userId,
+                },
+            });
+        }catch(e){
+            console.log("FTO!!Error in getting user tasks");
+        }
     }
 
-    resetData(): Promise<void> {
-        throw new NotImplementedException();
+    async resetData(): Promise<void> {
+        await this.taskModel.destroy({
+            where: {},
+        });
     }
 }
