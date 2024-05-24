@@ -8,40 +8,28 @@ export class TaskService {
         private taskModel: typeof Task,
     ) {}
 
-    async addTask(name: string, userId: string, priority: number): Promise<void> {
-        try{
-            await this.taskModel.create({
-                name: name,
-                userId: userId,
-                priority: priority,
-            });
-        }catch(e){
-            console.log("FTO!!Error in adding task");
-        }
+    async addTask(name: string, userId: number, priority: number): Promise<void> {
+        await this.taskModel.create({
+            name: name,
+            userId: userId,
+            priority: priority,
+        });
     }
 
     async getTaskByName(name: string): Promise<Task> {
-        try{
-            return await this.taskModel.findOne({
-                where: {
-                    name: name,
-                },
-            });
-        }catch(e){
-            console.log("FTO!!Error in getting task");
-        }
+        return await this.taskModel.findOne({
+            where: {
+                name: name,
+            },
+        });
     }
 
-    async getUserTasks(userId: string): Promise<Task[]> {
-        try{
-            return await this.taskModel.findAll({
-                where: {
-                    userId: userId,
-                },
-            });
-        }catch(e){
-            console.log("FTO!!Error in getting user tasks");
-        }
+    async getUserTasks(userId: number): Promise<Task[]> {
+        return await this.taskModel.findAll({
+            where: {
+                userId: userId,
+            },
+        });
     }
 
     async resetData(): Promise<void> {
